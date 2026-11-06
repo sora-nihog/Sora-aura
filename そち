@@ -1,149 +1,261 @@
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sora Car Racing</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sora Diwali Celebration</title>
 <style>
-body {
-  margin:0;
-  background:#111;
-  color:white;
-  text-align:center;
-  font-family:Arial;
+*{box-sizing:border-box}
+body{
+ margin:0;background:#160b2c;color:white;
+ font-family:Arial,sans-serif;text-align:center;
+ overflow-x:hidden;
 }
-h2 {color:#00ff99}
-canvas {
-  background:#444;
-  width:95%;
-  max-width:400px;
-  border:3px solid white;
+header{padding:30px 12px}
+h1{color:#ffd76a;font-size:38px;text-shadow:0 0 20px orange}
+p{color:#f5d9a1}
+section{
+ margin:18px 12px;padding:20px;
+ background:#302047;border:1px solid #80552e;
+ border-radius:18px;
 }
-button {
-  padding:15px 30px;
-  margin:8px;
-  border:0;
-  border-radius:12px;
-  font-size:22px;
-  background:#00ff99;
+button{
+ border:0;border-radius:30px;padding:14px 22px;
+ margin:7px;background:#ffb52e;color:#27112c;
+ font-size:16px;font-weight:bold;cursor:pointer;
 }
+button:active{transform:scale(.94)}
+.sweets{font-size:43px;margin:15px}
+.diya{font-size:40px;animation:glow 1s infinite alternate}
+@keyframes glow{
+ from{filter:drop-shadow(0 0 3px orange)}
+ to{filter:drop-shadow(0 0 20px gold)}
+}
+.crackers{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.cracker{
+ background:#482d61;padding:18px;border-radius:15px;
+ font-size:35px;min-width:90px;cursor:pointer;
+ border:2px solid transparent;
+}
+.cracker.selected{border-color:#ffd76a}
+#stage{
+ height:230px;position:relative;overflow:hidden;
+ background:radial-gradient(#33204d,#10091e);
+ border-radius:15px;margin-top:15px;
+}
+#message{padding:12px;color:#ffdf83;font-weight:bold}
+#fuse{font-size:28px;display:none;margin-top:20px}
+#blast{
+ position:absolute;inset:0;display:none;
+ align-items:center;justify-content:center;
+ font-size:65px;
+ animation:flash .5s infinite alternate;
+}
+@keyframes flash{from{opacity:.4}to{opacity:1}}
+canvas{
+ position:absolute;inset:0;width:100%;height:100%;
+ pointer-events:none;
+}
+footer{padding:25px;color:#ffd76a}
 </style>
 </head>
 <body>
 
-<h2>🏎️ SORA CAR RACING</h2>
-<h3>Score: <span id="score">0</span></h3>
+<header>
+ <div class="diya">🪔 🪔 🪔</div>
+ <h1>Happy Diwali!</h1>
+ <p>✨ Welcome to Sora's Festival of Lights ✨</p>
+</header>
 
-<canvas id="game" width="360" height="550"></canvas>
+<section>
+ <h2>🍬 Diwali Sweet Shop</h2>
+ <div class="sweets">🍬 🍭 🍫 🍮</div>
+ <button onclick="giveSweets()">🎁 Give Sweets</button>
+ <div id="sweetMessage">Share happiness and sweetness!</div>
+</section>
 
-<br>
-<button onclick="left()">⬅️</button>
-<button onclick="right()">➡️</button>
-<br>
-<button onclick="start()">START GAME</button>
+<section>
+ <h2>🎆 Digital Fireworks</h2>
+ <p>Select your virtual cracker:</p>
+ <div class="crackers">
+  <div class="cracker selected" onclick="choose(this,'🎇')">🎇<br><small>Flower</small></div>
+  <div class="cracker" onclick="choose(this,'🎆')">🎆<br><small>Star</small></div>
+  <div class="cracker" onclick="choose(this,'🧨')">🧨<br><small>Pop</small></div>
+ </div>
+
+ <div id="stage">
+  <canvas id="canvas"></canvas>
+  <div id="fuse">✨ Digital ignition animation... ✨</div>
+  <div id="blast">💥</div>
+ </div>
+
+ <div id="message">Choose a cracker and start the celebration!</div>
+ <button onclick="ignite()">🔥 Virtual Lighter</button>
+ <button onclick="soundToggle()" id="soundBtn">🔊 Sound ON</button>
+ <button onclick="resetStage()">↻ Celebrate Again</button>
+</section>
+
+<footer>
+ 🪔 Made with love by Sora 🪔
+ <p>Have a bright and beautiful Diwali!</p>
+</footer>
 
 <script>
-const c=document.getElementById("game");
-const ctx=c.getContext("2d");
+let selected="🎇";
+let sound=true;
+let audio=null;
+let busy=false;
+let particles=[];
+let animation=null;
 
-let carX=155;
-let enemies=[];
-let score=0;
-let speed=4;
-let road=0;
-let running=false;
-let animation;
-
-function drawCar(x,y,color) {
- ctx.fillStyle=color;
- ctx.fillRect(x,y,42,70);
- ctx.fillStyle="#111";
- ctx.fillRect(x+5,y+10,32,15);
- ctx.fillRect(x+5,y+48,32,12);
+function choose(el,type){
+ if(busy)return;
+ selected=type;
+ document.querySelectorAll('.cracker')
+ .forEach(x=>x.classList.remove('selected'));
+ el.classList.add('selected');
+ document.getElementById('message').innerText=
+ "Selected: "+type+" — Ready for a digital celebration!";
 }
 
-function draw() {
- ctx.clearRect(0,0,360,550);
-
- // Road
- ctx.fillStyle="#555";
- ctx.fillRect(40,0,280,550);
-
- // Road edges
- ctx.fillStyle="white";
- ctx.fillRect(40,0,5,550);
- ctx.fillRect(315,0,5,550);
-
- // Road lines
- ctx.fillStyle="yellow";
- for(let y=-40;y<550;y+=100){
-   ctx.fillRect(177,y+road,6,50);
+function getAudio(){
+ if(!audio){
+  audio=new (window.AudioContext||window.webkitAudioContext)();
  }
-
- // Player
- drawCar(carX,450,"#00ddff");
-
- // Enemy cars
- enemies.forEach(e=>drawCar(e.x,e.y,"#ff3333"));
-
+ if(audio.state==="suspended")audio.resume();
 }
 
-function update() {
- if(!running)return;
+function beep(freq,duration,volume=.08,type="sine"){
+ if(!sound)return;
+ getAudio();
+ let osc=audio.createOscillator();
+ let gain=audio.createGain();
+ osc.type=type;
+ osc.frequency.setValueAtTime(freq,audio.currentTime);
+ gain.gain.setValueAtTime(volume,audio.currentTime);
+ gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);
+ osc.connect(gain);
+ gain.connect(audio.destination);
+ osc.start();
+ osc.stop(audio.currentTime+duration);
+}
 
- road=(road+speed)%100;
+function soundToggle(){
+ sound=!sound;
+ document.getElementById('soundBtn').innerText=
+ sound?"🔊 Sound ON":"🔇 Sound OFF";
+ if(sound){getAudio();beep(700,.15);}
+}
 
- enemies.forEach(e=>e.y+=speed);
+function giveSweets(){
+ document.getElementById('sweetMessage').innerHTML=
+ "🎉 Yummy! 🍬🍫🍭 Sending you lots of happiness!";
+ beep(650,.15);
+ setTimeout(()=>beep(850,.2),150);
+}
 
- if(Math.random()<0.025){
-   enemies.push({
-     x:65+Math.floor(Math.random()*3)*90,
-     y:-80
-   });
+function ignite(){
+ if(busy)return;
+ busy=true;
+ document.getElementById('blast').style.display="none";
+ document.getElementById('fuse').style.display="block";
+ document.getElementById('message').innerText=
+ "🔥 Virtual lighter activated!";
+ beep(450,.2,.05);
+
+ let count=0;
+ let interval=setInterval(()=>{
+  count++;
+  beep(300+count*100,.08,.025);
+  if(count>=3){
+   clearInterval(interval);
+   document.getElementById('fuse').style.display="none";
+   explode();
+  }
+ },450);
+}
+
+function explode(){
+ document.getElementById('message').innerText=
+ "🎆 BOOM! Happy Diwali! 🎆";
+ document.getElementById('blast').style.display="flex";
+ beep(100,.5,.12,"triangle");
+ setTimeout(()=>beep(550,.4,.07),100);
+ setTimeout(()=>beep(850,.5,.05),220);
+ startFireworks();
+ setTimeout(()=>{
+  document.getElementById('blast').style.display="none";
+  busy=false;
+ },2200);
+}
+
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+
+function resize(){
+ canvas.width=canvas.clientWidth*devicePixelRatio;
+ canvas.height=canvas.clientHeight*devicePixelRatio;
+}
+resize();
+window.addEventListener('resize',resize);
+
+function burst(){
+ let x=Math.random()*canvas.width;
+ let y=Math.random()*canvas.height*.65;
+ let color=`hsl(${Math.random()*360},100%,65%)`;
+ for(let i=0;i<45;i++){
+  let angle=Math.PI*2*i/45;
+  let speed=1+Math.random()*4;
+  particles.push({
+   x,y,
+   vx:Math.cos(angle)*speed,
+   vy:Math.sin(angle)*speed,
+   life:1,color
+  });
  }
+}
 
- enemies=enemies.filter(e=>e.y<600);
+function startFireworks(){
+ for(let i=0;i<4;i++)setTimeout(burst,i*180);
+ if(animation)return;
+ draw();
+}
 
- for(let e of enemies){
-   if(carX<e.x+42 && carX+42>e.x &&
-      450<e.y+70 && 520>e.y){
-     running=false;
-     alert("GAME OVER! Score: "+score);
-     return;
-   }
+function draw(){
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ particles.forEach(p=>{
+  p.x+=p.vx*devicePixelRatio;
+  p.y+=p.vy*devicePixelRatio;
+  p.vy+=.025*devicePixelRatio;
+  p.life-=.012;
+  ctx.globalAlpha=Math.max(0,p.life);
+  ctx.fillStyle=p.color;
+  ctx.beginPath();
+  ctx.arc(p.x,p.y,3*devicePixelRatio,0,Math.PI*2);
+  ctx.fill();
+ });
+ particles=particles.filter(p=>p.life>0);
+ ctx.globalAlpha=1;
+ if(particles.length){
+  animation=requestAnimationFrame(draw);
+ }else{
+  cancelAnimationFrame(animation);
+  animation=null;
  }
-
- score++;
- document.getElementById("score").innerText=score;
-
- draw();
- animation=requestAnimationFrame(update);
 }
 
-function left(){
- carX=Math.max(48,carX-90);
- draw();
+function resetStage(){
+ busy=false;
+ particles=[];
+ if(animation)cancelAnimationFrame(animation);
+ animation=null;
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ document.getElementById('fuse').style.display="none";
+ document.getElementById('blast').style.display="none";
+ document.getElementById('message').innerText=
+ "Choose a cracker and start the celebration!";
 }
-
-function right(){
- carX=Math.min(268,carX+90);
- draw();
-}
-
-function start(){
- cancelAnimationFrame(animation);
- carX=155;
- enemies=[];
- score=0;
- road=0;
- speed=4;
- running=true;
- document.getElementById("score").innerText=0;
- update();
-}
-
-draw();
 </script>
-
 </body>
 </html>
