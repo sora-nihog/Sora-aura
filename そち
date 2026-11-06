@@ -1,1 +1,149 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sora Car Racing</title>
+<style>
+body {
+  margin:0;
+  background:#111;
+  color:white;
+  text-align:center;
+  font-family:Arial;
+}
+h2 {color:#00ff99}
+canvas {
+  background:#444;
+  width:95%;
+  max-width:400px;
+  border:3px solid white;
+}
+button {
+  padding:15px 30px;
+  margin:8px;
+  border:0;
+  border-radius:12px;
+  font-size:22px;
+  background:#00ff99;
+}
+</style>
+</head>
+<body>
+
+<h2>🏎️ SORA CAR RACING</h2>
+<h3>Score: <span id="score">0</span></h3>
+
+<canvas id="game" width="360" height="550"></canvas>
+
+<br>
+<button onclick="left()">⬅️</button>
+<button onclick="right()">➡️</button>
+<br>
+<button onclick="start()">START GAME</button>
+
+<script>
+const c=document.getElementById("game");
+const ctx=c.getContext("2d");
+
+let carX=155;
+let enemies=[];
+let score=0;
+let speed=4;
+let road=0;
+let running=false;
+let animation;
+
+function drawCar(x,y,color) {
+ ctx.fillStyle=color;
+ ctx.fillRect(x,y,42,70);
+ ctx.fillStyle="#111";
+ ctx.fillRect(x+5,y+10,32,15);
+ ctx.fillRect(x+5,y+48,32,12);
+}
+
+function draw() {
+ ctx.clearRect(0,0,360,550);
+
+ // Road
+ ctx.fillStyle="#555";
+ ctx.fillRect(40,0,280,550);
+
+ // Road edges
+ ctx.fillStyle="white";
+ ctx.fillRect(40,0,5,550);
+ ctx.fillRect(315,0,5,550);
+
+ // Road lines
+ ctx.fillStyle="yellow";
+ for(let y=-40;y<550;y+=100){
+   ctx.fillRect(177,y+road,6,50);
+ }
+
+ // Player
+ drawCar(carX,450,"#00ddff");
+
+ // Enemy cars
+ enemies.forEach(e=>drawCar(e.x,e.y,"#ff3333"));
+
+}
+
+function update() {
+ if(!running)return;
+
+ road=(road+speed)%100;
+
+ enemies.forEach(e=>e.y+=speed);
+
+ if(Math.random()<0.025){
+   enemies.push({
+     x:65+Math.floor(Math.random()*3)*90,
+     y:-80
+   });
+ }
+
+ enemies=enemies.filter(e=>e.y<600);
+
+ for(let e of enemies){
+   if(carX<e.x+42 && carX+42>e.x &&
+      450<e.y+70 && 520>e.y){
+     running=false;
+     alert("GAME OVER! Score: "+score);
+     return;
+   }
+ }
+
+ score++;
+ document.getElementById("score").innerText=score;
+
+ draw();
+ animation=requestAnimationFrame(update);
+}
+
+function left(){
+ carX=Math.max(48,carX-90);
+ draw();
+}
+
+function right(){
+ carX=Math.min(268,carX+90);
+ draw();
+}
+
+function start(){
+ cancelAnimationFrame(animation);
+ carX=155;
+ enemies=[];
+ score=0;
+ road=0;
+ speed=4;
+ running=true;
+ document.getElementById("score").innerText=0;
+ update();
+}
+
+draw();
+</script>
+
+</body>
+</html>
