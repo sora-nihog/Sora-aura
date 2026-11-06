@@ -3,240 +3,347 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sora Diwali Celebration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sora Diwali World</title>
+
 <style>
 *{box-sizing:border-box}
 body{
- margin:0;background:#160b2c;color:white;
+ margin:0;background:#10091f;color:white;
  font-family:Arial,sans-serif;text-align:center;
  overflow-x:hidden;
 }
-header{padding:30px 12px}
-h1{color:#ffd76a;font-size:38px;text-shadow:0 0 20px orange}
-p{color:#f5d9a1}
-section{
- margin:18px 12px;padding:20px;
- background:#302047;border:1px solid #80552e;
- border-radius:18px;
+header{
+ padding:35px 12px 20px;
+ background:linear-gradient(160deg,#30113d,#10091f);
 }
-button{
- border:0;border-radius:30px;padding:14px 22px;
- margin:7px;background:#ffb52e;color:#27112c;
- font-size:16px;font-weight:bold;cursor:pointer;
+h1{
+ color:#ffda72;font-size:38px;
+ text-shadow:0 0 20px orange;
+ margin:12px 0;
 }
-button:active{transform:scale(.94)}
-.sweets{font-size:43px;margin:15px}
-.diya{font-size:40px;animation:glow 1s infinite alternate}
+h2{color:#ffda72}
+p{color:#e8d5b5}
+.diya{
+ font-size:38px;
+ animation:glow 1.2s infinite alternate;
+}
 @keyframes glow{
  from{filter:drop-shadow(0 0 3px orange)}
- to{filter:drop-shadow(0 0 20px gold)}
+ to{filter:drop-shadow(0 0 22px gold)}
 }
-.crackers{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+section{
+ margin:18px 12px;padding:20px;
+ background:linear-gradient(145deg,#342047,#21122f);
+ border:1px solid #79512f;
+ border-radius:20px;
+ box-shadow:0 5px 25px #0005;
+}
+button{
+ border:0;border-radius:30px;
+ padding:13px 20px;margin:6px;
+ background:linear-gradient(120deg,#ffd66c,#ff9d32);
+ color:#29132d;font-weight:bold;font-size:15px;
+ cursor:pointer;
+}
+button:active{transform:scale(.94)}
+button.secondary{
+ background:#543765;color:white;
+ border:1px solid #a77cbb;
+}
+.sweets{
+ font-size:45px;margin:18px;
+ animation:float 2s infinite alternate;
+}
+@keyframes float{
+ to{transform:translateY(-9px)}
+}
+.crackers{
+ display:flex;justify-content:center;
+ flex-wrap:wrap;gap:10px;
+}
 .cracker{
- background:#482d61;padding:18px;border-radius:15px;
- font-size:35px;min-width:90px;cursor:pointer;
- border:2px solid transparent;
+ background:#50336a;border:2px solid transparent;
+ padding:13px;border-radius:15px;
+ min-width:90px;cursor:pointer;font-size:32px;
 }
-.cracker.selected{border-color:#ffd76a}
+.cracker.selected{border-color:#ffdc75}
 #stage{
- height:230px;position:relative;overflow:hidden;
- background:radial-gradient(#33204d,#10091e);
- border-radius:15px;margin-top:15px;
+ position:relative;height:320px;
+ background:radial-gradient(ellipse at bottom,#432454,#10091e 75%);
+ border-radius:17px;overflow:hidden;
+ border:1px solid #805b8b;
 }
-#message{padding:12px;color:#ffdf83;font-weight:bold}
-#fuse{font-size:28px;display:none;margin-top:20px}
-#blast{
- position:absolute;inset:0;display:none;
- align-items:center;justify-content:center;
- font-size:65px;
- animation:flash .5s infinite alternate;
-}
-@keyframes flash{from{opacity:.4}to{opacity:1}}
-canvas{
+#sky{
  position:absolute;inset:0;width:100%;height:100%;
+}
+#status{
+ position:absolute;bottom:12px;width:100%;
+ color:#ffdf94;font-weight:bold;
  pointer-events:none;
 }
-footer{padding:25px;color:#ffd76a}
+#fuse{
+ display:none;position:absolute;
+ top:40%;width:100%;font-size:27px;
+ animation:glow .4s infinite alternate;
+}
+#explosion{
+ display:none;position:absolute;
+ top:35%;width:100%;font-size:65px;
+ animation:pop .3s infinite alternate;
+}
+@keyframes pop{
+ to{transform:scale(1.35);opacity:.6}
+}
+.diyas{
+ display:flex;justify-content:center;
+ gap:20px;font-size:35px;margin:15px;
+}
+.music-status{color:#ffe29b;font-size:13px}
+footer{padding:30px;color:#ffd66c}
 </style>
 </head>
+
 <body>
 
 <header>
- <div class="diya">🪔 🪔 🪔</div>
- <h1>Happy Diwali!</h1>
- <p>✨ Welcome to Sora's Festival of Lights ✨</p>
+ <div class="diya">🪔 ✨ 🪔</div>
+ <h1>SORA DIWALI WORLD</h1>
+ <p>Welcome to the magical festival of lights</p>
+ <div class="diyas">🪔 🪔 🪔 🪔 🪔</div>
+ <button onclick="startMusic()">🎵 Start Music</button>
+ <div class="music-status" id="musicStatus">
+ Music is OFF
+ </div>
 </header>
 
 <section>
- <h2>🍬 Diwali Sweet Shop</h2>
- <div class="sweets">🍬 🍭 🍫 🍮</div>
- <button onclick="giveSweets()">🎁 Give Sweets</button>
- <div id="sweetMessage">Share happiness and sweetness!</div>
+ <h2>🍬 Royal Sweet Shop</h2>
+ <div class="sweets">🍬 🍭 🍫 🍮 🍡</div>
+ <p>Share sweetness and happiness!</p>
+ <button onclick="giveSweet()">🎁 Give Sweets</button>
+ <p id="sweetStatus">Your sweet shop is ready!</p>
 </section>
 
 <section>
- <h2>🎆 Digital Fireworks</h2>
- <p>Select your virtual cracker:</p>
+ <h2>🎆 Grand Fireworks Show</h2>
+ <p>Choose your digital fireworks</p>
+
  <div class="crackers">
-  <div class="cracker selected" onclick="choose(this,'🎇')">🎇<br><small>Flower</small></div>
-  <div class="cracker" onclick="choose(this,'🎆')">🎆<br><small>Star</small></div>
-  <div class="cracker" onclick="choose(this,'🧨')">🧨<br><small>Pop</small></div>
+  <div class="cracker selected" onclick="selectCracker(this,'flower')">
+   🎇<br><small>Flower</small>
+  </div>
+  <div class="cracker" onclick="selectCracker(this,'rocket')">
+   🚀<br><small>Rocket</small>
+  </div>
+  <div class="cracker" onclick="selectCracker(this,'fountain')">
+   🎆<br><small>Fountain</small>
+  </div>
+  <div class="cracker" onclick="selectCracker(this,'star')">
+   ✨<br><small>Star</small>
+  </div>
  </div>
 
  <div id="stage">
-  <canvas id="canvas"></canvas>
-  <div id="fuse">✨ Digital ignition animation... ✨</div>
-  <div id="blast">💥</div>
+  <canvas id="sky"></canvas>
+  <div id="fuse">🔥 ✨ Digital ignition...</div>
+  <div id="explosion">💥</div>
+  <div id="status">Your celebration is ready!</div>
  </div>
 
- <div id="message">Choose a cracker and start the celebration!</div>
  <button onclick="ignite()">🔥 Virtual Lighter</button>
- <button onclick="soundToggle()" id="soundBtn">🔊 Sound ON</button>
- <button onclick="resetStage()">↻ Celebrate Again</button>
+ <button class="secondary" onclick="randomShow()">🎆 Sky Show</button>
+ <button class="secondary" onclick="resetShow()">↻ Reset</button>
+</section>
+
+<section>
+ <h2>🪔 Diya Celebration</h2>
+ <div class="diyas">
+  <span class="diya">🪔</span>
+  <span class="diya">🪔</span>
+  <span class="diya">🪔</span>
+ </div>
+ <p>May your life shine with happiness!</p>
+</section>
+
+<section>
+ <h2>🎶 Sound Settings</h2>
+ <button onclick="toggleSound()" id="soundButton">
+ 🔊 Sound ON
+ </button>
+ <button class="secondary" onclick="startMusic()">
+ 🎵 Music ON/OFF
+ </button>
+ <p id="soundStatus">Sound effects enabled</p>
 </section>
 
 <footer>
- 🪔 Made with love by Sora 🪔
- <p>Have a bright and beautiful Diwali!</p>
+ <div class="diya">✨ 🪔 ✨</div>
+ <h2>Happy Diwali!</h2>
+ <p>Created by Sora</p>
+ <p>Spread light. Spread happiness.</p>
 </footer>
 
 <script>
-let selected="🎇";
-let sound=true;
-let audio=null;
+let selected="flower";
 let busy=false;
+let sound=true;
+let music=false;
+let audio=null;
+let musicTimer=null;
 let particles=[];
 let animation=null;
 
-function choose(el,type){
- if(busy)return;
- selected=type;
- document.querySelectorAll('.cracker')
- .forEach(x=>x.classList.remove('selected'));
- el.classList.add('selected');
- document.getElementById('message').innerText=
- "Selected: "+type+" — Ready for a digital celebration!";
-}
+const canvas=document.getElementById("sky");
+const ctx=canvas.getContext("2d");
+const stage=document.getElementById("stage");
 
-function getAudio(){
+function resize(){
+ canvas.width=stage.clientWidth*devicePixelRatio;
+ canvas.height=stage.clientHeight*devicePixelRatio;
+}
+resize();
+window.addEventListener("resize",resize);
+
+function audioStart(){
  if(!audio){
-  audio=new (window.AudioContext||window.webkitAudioContext)();
+  audio=new(window.AudioContext||window.webkitAudioContext)();
  }
  if(audio.state==="suspended")audio.resume();
 }
 
-function beep(freq,duration,volume=.08,type="sine"){
+function tone(freq,duration,volume=.07,type="sine"){
  if(!sound)return;
- getAudio();
- let osc=audio.createOscillator();
- let gain=audio.createGain();
+ audioStart();
+ const osc=audio.createOscillator();
+ const gain=audio.createGain();
  osc.type=type;
  osc.frequency.setValueAtTime(freq,audio.currentTime);
  gain.gain.setValueAtTime(volume,audio.currentTime);
- gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);
+ gain.gain.exponentialRampToValueAtTime(
+  .001,audio.currentTime+duration
+ );
  osc.connect(gain);
  gain.connect(audio.destination);
  osc.start();
  osc.stop(audio.currentTime+duration);
 }
 
-function soundToggle(){
+function toggleSound(){
  sound=!sound;
- document.getElementById('soundBtn').innerText=
+ document.getElementById("soundButton").innerText=
  sound?"🔊 Sound ON":"🔇 Sound OFF";
- if(sound){getAudio();beep(700,.15);}
+ document.getElementById("soundStatus").innerText=
+ sound?"Sound effects enabled":"Sound effects muted";
+ if(sound)tone(700,.15);
 }
 
-function giveSweets(){
- document.getElementById('sweetMessage').innerHTML=
- "🎉 Yummy! 🍬🍫🍭 Sending you lots of happiness!";
- beep(650,.15);
- setTimeout(()=>beep(850,.2),150);
+function startMusic(){
+ audioStart();
+ if(music){
+  clearInterval(musicTimer);
+  music=false;
+  document.getElementById("musicStatus").innerText="Music is OFF";
+  return;
+ }
+ music=true;
+ document.getElementById("musicStatus").innerText="🎵 Music is ON";
+ const notes=[523,659,784,659,587,698,880,784];
+ let i=0;
+ musicTimer=setInterval(()=>{
+  tone(notes[i%notes.length],.3,.035);
+  i++;
+ },400);
 }
 
-function ignite(){
+function selectCracker(el,type){
  if(busy)return;
- busy=true;
- document.getElementById('blast').style.display="none";
- document.getElementById('fuse').style.display="block";
- document.getElementById('message').innerText=
- "🔥 Virtual lighter activated!";
- beep(450,.2,.05);
-
- let count=0;
- let interval=setInterval(()=>{
-  count++;
-  beep(300+count*100,.08,.025);
-  if(count>=3){
-   clearInterval(interval);
-   document.getElementById('fuse').style.display="none";
-   explode();
-  }
- },450);
+ selected=type;
+ document.querySelectorAll(".cracker")
+ .forEach(c=>c.classList.remove("selected"));
+ el.classList.add("selected");
+ document.getElementById("status").innerText=
+ "Selected: "+type+" — Ready!";
 }
 
-function explode(){
- document.getElementById('message').innerText=
- "🎆 BOOM! Happy Diwali! 🎆";
- document.getElementById('blast').style.display="flex";
- beep(100,.5,.12,"triangle");
- setTimeout(()=>beep(550,.4,.07),100);
- setTimeout(()=>beep(850,.5,.05),220);
- startFireworks();
- setTimeout(()=>{
-  document.getElementById('blast').style.display="none";
-  busy=false;
- },2200);
+function giveSweet(){
+ const status=document.getElementById("sweetStatus");
+ status.innerText="🎉 Sweet gift delivered! 🍬💖";
+ tone(600,.2);
+ setTimeout(()=>tone(800,.2),180);
+ setTimeout(()=>tone(1000,.3),350);
 }
 
-const canvas=document.getElementById('canvas');
-const ctx=canvas.getContext('2d');
-
-function resize(){
- canvas.width=canvas.clientWidth*devicePixelRatio;
- canvas.height=canvas.clientHeight*devicePixelRatio;
-}
-resize();
-window.addEventListener('resize',resize);
-
-function burst(){
- let x=Math.random()*canvas.width;
- let y=Math.random()*canvas.height*.65;
- let color=`hsl(${Math.random()*360},100%,65%)`;
- for(let i=0;i<45;i++){
-  let angle=Math.PI*2*i/45;
-  let speed=1+Math.random()*4;
+function burst(x,y,count=65){
+ const colors=[
+  "#ffdc55","#ff674e","#65eaff",
+  "#ff75c3","#a68aff","#ffffff"
+ ];
+ for(let i=0;i<count;i++){
+  let angle=Math.random()*Math.PI*2;
+  let speed=1.5+Math.random()*5;
   particles.push({
    x,y,
    vx:Math.cos(angle)*speed,
    vy:Math.sin(angle)*speed,
-   life:1,color
+   life:1,
+   color:colors[Math.floor(Math.random()*colors.length)],
+   size:1+Math.random()*3
   });
  }
 }
 
-function startFireworks(){
- for(let i=0;i<4;i++)setTimeout(burst,i*180);
- if(animation)return;
- draw();
+function fountain(){
+ let x=canvas.width*(.25+Math.random()*.5);
+ let y=canvas.height*.8;
+ for(let i=0;i<65;i++){
+  particles.push({
+   x,y,
+   vx:(Math.random()-.5)*4,
+   vy:-2-Math.random()*7,
+   life:1,
+   color:Math.random()>.5?"#ffd95e":"#ff8b39",
+   size:2+Math.random()*3
+  });
+ }
+}
+
+function rocket(){
+ let x=canvas.width*(.25+Math.random()*.5);
+ particles.push({
+  x,y:canvas.height*.85,
+  vx:0,vy:-9,life:1.5,
+  color:"#ffffff",size:4,
+  rocket:true
+ });
 }
 
 function draw(){
  ctx.clearRect(0,0,canvas.width,canvas.height);
+
  particles.forEach(p=>{
   p.x+=p.vx*devicePixelRatio;
   p.y+=p.vy*devicePixelRatio;
-  p.vy+=.025*devicePixelRatio;
-  p.life-=.012;
-  ctx.globalAlpha=Math.max(0,p.life);
+  p.vy+=p.rocket?-.01*devicePixelRatio:.055*devicePixelRatio;
+  p.life-=p.rocket?.008:.013;
+
+  ctx.globalAlpha=Math.max(0,Math.min(1,p.life));
   ctx.fillStyle=p.color;
+  ctx.shadowBlur=12;
+  ctx.shadowColor=p.color;
   ctx.beginPath();
-  ctx.arc(p.x,p.y,3*devicePixelRatio,0,Math.PI*2);
+  ctx.arc(p.x,p.y,p.size*devicePixelRatio,0,Math.PI*2);
   ctx.fill();
+
+  if(p.rocket&&!p.burst&&p.life<1.2){
+   p.burst=true;
+   burst(p.x,p.y,75);
+   tone(110,.45,.09,"triangle");
+  }
  });
- particles=particles.filter(p=>p.life>0);
  ctx.globalAlpha=1;
+ ctx.shadowBlur=0;
+ particles=particles.filter(p=>p.life>0);
  if(particles.length){
   animation=requestAnimationFrame(draw);
  }else{
@@ -245,16 +352,100 @@ function draw(){
  }
 }
 
-function resetStage(){
+function animate(){
+ if(!animation)draw();
+}
+
+function ignite(){
+ if(busy)return;
+ busy=true;
+ document.getElementById("explosion").style.display="none";
+ document.getElementById("fuse").style.display="block";
+ document.getElementById("status").innerText=
+ "🔥 Virtual lighter activated!";
+ tone(420,.2,.05);
+
+ let count=0;
+ const timer=setInterval(()=>{
+  count++;
+  tone(350+count*100,.08,.025);
+  if(count===4){
+   clearInterval(timer);
+   explode();
+  }
+ },400);
+}
+
+function explode(){
+ document.getElementById("fuse").style.display="none";
+ document.getElementById("explosion").style.display="block";
+ document.getElementById("status").innerText=
+ "✨ Magical digital fireworks!";
+
+ if(selected==="rocket"){
+  rocket();
+ }else if(selected==="fountain"){
+  fountain();
+ }else if(selected==="star"){
+  for(let i=0;i<5;i++){
+   setTimeout(()=>{
+    burst(
+     Math.random()*canvas.width,
+     Math.random()*canvas.height*.7,
+     35
+    );
+    animate();
+   },i*250);
+  }
+ }else{
+  burst(canvas.width/2,canvas.height*.35,90);
+ }
+
+ animate();
+ tone(120,.5,.1,"triangle");
+ setTimeout(()=>tone(700,.4,.07),120);
+
+ setTimeout(()=>{
+  document.getElementById("explosion").style.display="none";
+  document.getElementById("status").innerText=
+  "Choose another digital firework!";
+  busy=false;
+ },2500);
+}
+
+function randomShow(){
+ if(busy)return;
+ busy=true;
+ document.getElementById("status").innerText=
+ "🎆 Grand sky show!";
+ for(let i=0;i<6;i++){
+  setTimeout(()=>{
+   burst(
+    canvas.width*(.15+Math.random()*.7),
+    canvas.height*(.15+Math.random()*.55),
+    65
+   );
+   animate();
+   tone(450+Math.random()*400,.25,.04);
+  },i*350);
+ }
+ setTimeout(()=>{
+  busy=false;
+  document.getElementById("status").innerText=
+  "Amazing sky show! ✨";
+ },2800);
+}
+
+function resetShow(){
  busy=false;
  particles=[];
  if(animation)cancelAnimationFrame(animation);
  animation=null;
  ctx.clearRect(0,0,canvas.width,canvas.height);
- document.getElementById('fuse').style.display="none";
- document.getElementById('blast').style.display="none";
- document.getElementById('message').innerText=
- "Choose a cracker and start the celebration!";
+ document.getElementById("fuse").style.display="none";
+ document.getElementById("explosion").style.display="none";
+ document.getElementById("status").innerText=
+ "Your celebration is ready!";
 }
 </script>
 </body>
