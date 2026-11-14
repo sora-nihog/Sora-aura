@@ -4,1152 +4,443 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sora Solar System</title>
+<title>Sora Floating 3D Objects</title>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
+  margin: 0;
   overflow: hidden;
-  background: #02020b;
+  background: radial-gradient(ellipse at center, #182b50, #050711 75%);
   color: white;
   font-family: Arial, sans-serif;
 }
 
-#world {
+#scene {
   position: fixed;
   inset: 0;
-  display: block;
 }
 
-#ui {
+.panel {
   position: fixed;
-  inset: 0;
   z-index: 5;
-  pointer-events: none;
-}
-
-.header {
-  position: absolute;
-  top: 18px;
-  width: 100%;
-  text-align: center;
-  text-shadow: 0 0 18px #ff8c25;
-}
-
-.header h1 {
-  font-size: clamp(20px, 5vw, 34px);
-  letter-spacing: 3px;
-}
-
-.header p {
-  color: #ffc78a;
-  font-size: 10px;
-  letter-spacing: 2px;
-  margin-top: 7px;
-}
-
-#status {
-  position: absolute;
-  top: 95px;
+  top: 15px;
   left: 50%;
   transform: translateX(-50%);
-  background: #11172cdd;
-  border: 1px solid #ffad5c77;
-  padding: 9px 13px;
-  border-radius: 30px;
-  font-size: 11px;
-  max-width: 92%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#cameraButton {
-  position: absolute;
-  top: 140px;
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: auto;
-  padding: 11px 16px;
-  border-radius: 30px;
-  color: white;
-  background: #38200e;
-  border: 1px solid #ff9d42;
-}
-
-#cameraPanel {
-  position: absolute;
-  right: 10px;
-  bottom: 90px;
-  width: 130px;
-  height: 100px;
-  overflow: hidden;
-  border: 1px solid #ffb76c;
-  border-radius: 12px;
-  background: #090d1b;
-}
-
-#video,
-#handCanvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scaleX(-1);
-}
-
-#handCanvas {
-  pointer-events: none;
-}
-
-#cameraLabel {
-  position: absolute;
-  bottom: 4px;
-  width: 100%;
+  width: min(94%, 440px);
+  padding: 15px;
   text-align: center;
-  font-size: 8px;
-  color: white;
-  text-shadow: 0 0 5px black;
+  border: 1px solid #ffffff30;
+  border-radius: 18px;
+  background: #10182bd9;
+  backdrop-filter: blur(12px);
 }
 
-#help {
-  position: absolute;
-  left: 10px;
-  bottom: 95px;
-  background: #090d1dcc;
-  border: 1px solid #ffffff22;
-  border-radius: 12px;
-  padding: 9px;
-  font-size: 9px;
-  line-height: 1.8;
-}
-
-#bottomText {
-  position: absolute;
-  bottom: 17px;
-  width: 100%;
-  text-align: center;
-  color: #a7a9c8;
-  font-size: 9px;
+h2 {
+  margin: 0 0 8px;
+  font-size: 21px;
   letter-spacing: 1px;
 }
 
-@media(max-width:380px) {
-  #cameraPanel {
-    width: 105px;
-    height: 85px;
-  }
+#status {
+  color: #a9d9ff;
+  font-size: 12px;
+  min-height: 17px;
+  margin: 8px 0;
+}
 
-  #help {
-    font-size: 8px;
-  }
+.buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button, .upload {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 14px;
+  background: linear-gradient(135deg, #377dff, #914dff);
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:active, .upload:active {
+  transform: scale(.96);
+}
+
+input { display: none; }
+
+#counter {
+  color: #c6d9ff;
+  font-size: 12px;
+  margin-top: 9px;
+}
+
+.help {
+  position: fixed;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  text-align: center;
+  color: #b9c9e9;
+  font-size: 12px;
+  pointer-events: none;
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="world"></canvas>
+<div id="scene"></div>
 
-<div id="ui">
+<div class="panel">
+  <h2>✦ SORA FLOATING WORLD ✦</h2>
+  <div id="status">Upload a picture to begin</div>
 
-  <div class="header">
-    <h1>SORA SOLAR SYSTEM</h1>
-    <p>CONTROL THE UNIVERSE WITH YOUR HANDS</p>
+  <div class="buttons">
+    <label class="upload" for="photos">＋ Add Pictures</label>
+    <input id="photos" type="file" accept="image/*" multiple>
+
+    <button id="previous">◀ Previous</button>
+    <button id="next">Next ▶</button>
+    <button id="spin">Pause Rotation</button>
   </div>
 
-  <div id="status">Solar system ready</div>
-
-  <button id="cameraButton">
-    📷 START HAND CONTROL
-  </button>
-
-  <div id="help">
-    🖐 Move hands — Rotate<br>
-    ↔ Move sideways — Turn<br>
-    ↕ Move up/down — Tilt<br>
-    🤏 Pinch — Zoom<br>
-    ↔ Spread hands — Zoom<br>
-    🔄 Wrist movement — Twist
-  </div>
-
-  <div id="cameraPanel">
-    <video id="video" autoplay playsinline muted></video>
-    <canvas id="handCanvas"></canvas>
-    <div id="cameraLabel">LIVE HAND TRACKING</div>
-  </div>
-
-  <div id="bottomText">
-    SUN • PLANETS • ORBITS • INFINITE SPACE
-  </div>
-
+  <div id="counter">No pictures selected</div>
 </div>
 
+<div class="help">
+  Drag to rotate • Pinch to zoom • Upload pictures to change the object
+</div>
 
 <script type="module">
-
 import * as THREE from
 "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
-import {
-  FilesetResolver,
-  HandLandmarker
-} from
-"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+const sceneElement = document.getElementById("scene");
+const statusText = document.getElementById("status");
+const counter = document.getElementById("counter");
+const photoInput = document.getElementById("photos");
 
+let scene, camera, renderer;
+let objectGroup, objectMesh;
+let photos = [];
+let currentIndex = 0;
+let rotating = true;
+let targetRotationY = 0;
+let targetRotationX = 0;
+let zoom = 1;
+let dragging = false;
+let lastX = 0;
+let lastY = 0;
+let processing = false;
 
-// =====================================
-// THREE.JS SETUP
-// =====================================
-
-const canvas = document.getElementById("world");
-
-const scene = new THREE.Scene();
-
-scene.background = new THREE.Color(0x02020b);
-
-const camera = new THREE.PerspectiveCamera(
-  55,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-
-camera.position.set(0, 0, 39);
-
-const renderer = new THREE.WebGLRenderer({
-  canvas,
-  antialias: false,
-  powerPreference: "high-performance"
-});
-
-renderer.setSize(
-  window.innerWidth,
-  window.innerHeight
-);
-
-renderer.setPixelRatio(1);
-
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-const world = new THREE.Group();
-
-scene.add(world);
-
-
-// =====================================
-// LIGHTING
-// =====================================
-
-scene.add(
-  new THREE.AmbientLight(0x667799, 0.8)
-);
-
-const sunLight = new THREE.PointLight(
-  0xffaa55,
-  3,
-  90
-);
-
-scene.add(sunLight);
-
-
-// =====================================
-// STAR FIELD
-// =====================================
-
-const STAR_COUNT = 900;
-
-const starPositions = new Float32Array(
-  STAR_COUNT * 3
-);
-
-for(let i=0;i<STAR_COUNT;i++) {
-
-  starPositions[i*3] =
-    (Math.random()-.5)*150;
-
-  starPositions[i*3+1] =
-    (Math.random()-.5)*110;
-
-  starPositions[i*3+2] =
-    (Math.random()-.5)*90;
-
+function setStatus(message) {
+  statusText.textContent = message;
 }
 
-const starGeometry = new THREE.BufferGeometry();
+function init() {
+  scene = new THREE.Scene();
 
-starGeometry.setAttribute(
-  "position",
-  new THREE.BufferAttribute(starPositions,3)
-);
-
-const stars = new THREE.Points(
-  starGeometry,
-  new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: .13,
-    transparent: true,
-    opacity: .8
-  })
-);
-
-scene.add(stars);
-
-
-// =====================================
-// GLOW TEXTURE
-// =====================================
-
-function createGlowTexture(color) {
-
-  const c = document.createElement("canvas");
-
-  c.width = 128;
-  c.height = 128;
-
-  const ctx = c.getContext("2d");
-
-  const gradient = ctx.createRadialGradient(
-    64,64,3,
-    64,64,64
+  camera = new THREE.PerspectiveCamera(
+    45,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
   );
+  camera.position.z = 6;
 
-  gradient.addColorStop(0,color);
-  gradient.addColorStop(.25,color);
-  gradient.addColorStop(.6,color+"55");
-  gradient.addColorStop(1,color+"00");
+  renderer = new THREE.WebGLRenderer({
+    antialias: false,
+    alpha: true,
+    powerPreference: "low-power"
+  });
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  sceneElement.appendChild(renderer.domElement);
+
+  objectGroup = new THREE.Group();
+  scene.add(objectGroup);
+
+  // Soft floating glow behind the uploaded subject
+  const glowCanvas = document.createElement("canvas");
+  glowCanvas.width = 128;
+  glowCanvas.height = 128;
+
+  const ctx = glowCanvas.getContext("2d");
+  const gradient = ctx.createRadialGradient(64,64,2,64,64,62);
+  gradient.addColorStop(0, "rgba(65,140,255,0.35)");
+  gradient.addColorStop(1, "rgba(65,140,255,0)");
 
   ctx.fillStyle = gradient;
   ctx.fillRect(0,0,128,128);
 
-  return new THREE.CanvasTexture(c);
-
-}
-
-
-// =====================================
-// SUN
-// =====================================
-
-const sunGroup = new THREE.Group();
-
-world.add(sunGroup);
-
-const sun = new THREE.Mesh(
-  new THREE.SphereGeometry(2.5,32,32),
-  new THREE.MeshBasicMaterial({
-    color: 0xffa01c
-  })
-);
-
-sunGroup.add(sun);
-
-
-// Sun glow
-
-const sunGlow = new THREE.Sprite(
-  new THREE.SpriteMaterial({
-    map: createGlowTexture("#ff8c18"),
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-  })
-);
-
-sunGlow.scale.set(12,12,1);
-
-sunGroup.add(sunGlow);
-
-
-// Inner glow
-
-const innerGlow = new THREE.Sprite(
-  new THREE.SpriteMaterial({
-    map: createGlowTexture("#ffbd43"),
-    transparent: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false
-  })
-);
-
-innerGlow.scale.set(6.5,6.5,1);
-
-sunGroup.add(innerGlow);
-
-
-// =====================================
-// SUN CORONA
-// =====================================
-
-const coronaPositions = [];
-
-for(let i=0;i<220;i++) {
-
-  const angle = Math.random()*Math.PI*2;
-
-  const radius = 2.8+Math.random()*.8;
-
-  coronaPositions.push(
-    Math.cos(angle)*radius,
-    Math.sin(angle)*radius,
-    (Math.random()-.5)*.4
-  );
-
-}
-
-const coronaGeometry = new THREE.BufferGeometry();
-
-coronaGeometry.setAttribute(
-  "position",
-  new THREE.Float32BufferAttribute(
-    coronaPositions,3
-  )
-);
-
-const corona = new THREE.Points(
-  coronaGeometry,
-  new THREE.PointsMaterial({
-    color: 0xffa52e,
-    size: .10,
-    transparent: true,
-    opacity: .9,
-    blending: THREE.AdditiveBlending
-  })
-);
-
-sunGroup.add(corona);
-
-
-// =====================================
-// PLANETS AND ORBITS
-// =====================================
-
-const planets = [];
-
-function makeOrbit(radius) {
-
-  const points = [];
-
-  for(let i=0;i<=64;i++) {
-
-    const angle = i/64*Math.PI*2;
-
-    points.push(
-      new THREE.Vector3(
-        Math.cos(angle)*radius,
-        0,
-        Math.sin(angle)*radius
-      )
-    );
-
-  }
-
-  const geometry =
-    new THREE.BufferGeometry().setFromPoints(points);
-
-  const line = new THREE.LineLoop(
-    geometry,
-    new THREE.LineBasicMaterial({
-      color: 0x667799,
-      transparent: true,
-      opacity: .25
-    })
-  );
-
-  world.add(line);
-
-}
-
-
-function createPlanet(options) {
-
-  const {
-    radius,
-    size,
-    color,
-    speed,
-    ring
-  } = options;
-
-  makeOrbit(radius);
-
-  const orbit = new THREE.Group();
-
-  world.add(orbit);
-
-  const planet = new THREE.Mesh(
-    new THREE.SphereGeometry(size,24,24),
-    new THREE.MeshStandardMaterial({
-      color: color,
-      roughness: .8,
-      metalness: .05,
-      emissive: color,
-      emissiveIntensity: .10
-    })
-  );
-
-  planet.position.x = radius;
-
-  orbit.add(planet);
-
+  const glowTexture = new THREE.CanvasTexture(glowCanvas);
   const glow = new THREE.Sprite(
     new THREE.SpriteMaterial({
-      map: createGlowTexture(
-        "#"+color.toString(16).padStart(6,"0")
-      ),
+      map: glowTexture,
       transparent: true,
-      blending: THREE.AdditiveBlending,
       depthWrite: false
     })
   );
 
-  glow.scale.set(size*3.5,size*3.5,1);
+  glow.scale.set(5,5,1);
+  objectGroup.add(glow);
 
-  planet.add(glow);
-
-  if(ring) {
-
-    const ringMesh = new THREE.Mesh(
-      new THREE.RingGeometry(
-        size*1.35,
-        size*2.1,
-        40
-      ),
-      new THREE.MeshBasicMaterial({
-        color: 0xc8a97b,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: .8
-      })
-    );
-
-    ringMesh.rotation.x = -Math.PI/2.3;
-
-    planet.add(ringMesh);
-
-  }
-
-  planets.push({
-    orbit,
-    planet,
-    speed
-  });
-
+  animate();
 }
-
-
-// =====================================
-// SOLAR SYSTEM PLANETS
-// =====================================
-
-createPlanet({
-  radius: 4.1,
-  size: .35,
-  color: 0x9b9993,
-  speed: .9
-});
-
-createPlanet({
-  radius: 6,
-  size: .65,
-  color: 0xe5b66d,
-  speed: .65
-});
-
-createPlanet({
-  radius: 8.3,
-  size: .75,
-  color: 0x2687ff,
-  speed: .48
-});
-
-createPlanet({
-  radius: 10.5,
-  size: .55,
-  color: 0xd65b32,
-  speed: .38
-});
-
-createPlanet({
-  radius: 13.4,
-  size: 1.35,
-  color: 0xd5a078,
-  speed: .25
-});
-
-createPlanet({
-  radius: 17,
-  size: 1.05,
-  color: 0xe6ca88,
-  speed: .18,
-  ring: true
-});
-
-createPlanet({
-  radius: 20.2,
-  size: .8,
-  color: 0x75d5dc,
-  speed: .13
-});
-
-createPlanet({
-  radius: 23.3,
-  size: .8,
-  color: 0x345bdb,
-  speed: .10
-});
-
-
-// =====================================
-// CAMERA AND HAND TRACKING
-// =====================================
-
-const video = document.getElementById("video");
-
-const handCanvas =
-  document.getElementById("handCanvas");
-
-const ctx = handCanvas.getContext("2d");
-
-const cameraButton =
-  document.getElementById("cameraButton");
-
-const statusText =
-  document.getElementById("status");
-
-let tracker = null;
-let stream = null;
-
-let tracking = false;
-
-let lastVideoTime = -1;
-let lastDetectionTime = 0;
-
-let handCount = 0;
-
-
-// =====================================
-// HAND SKELETON
-// =====================================
-
-const connections = [
-  [0,1],[1,2],[2,3],[3,4],
-  [0,5],[5,6],[6,7],[7,8],
-  [5,9],[9,10],[10,11],[11,12],
-  [9,13],[13,14],[14,15],[15,16],
-  [13,17],[17,18],[18,19],[19,20],
-  [0,17]
-];
-
-
-function drawHands(landmarks) {
-
-  const width = handCanvas.width;
-  const height = handCanvas.height;
-
-  ctx.clearRect(0,0,width,height);
-
-  if(!landmarks || !landmarks.length) return;
-
-  for(const hand of landmarks) {
-
-    ctx.lineWidth = 2.2;
-    ctx.strokeStyle = "#ffffff";
-    ctx.shadowColor = "#00eaff";
-    ctx.shadowBlur = 6;
-
-    for(const [a,b] of connections) {
-
-      const p1 = hand[a];
-      const p2 = hand[b];
-
-      ctx.beginPath();
-
-      ctx.moveTo(
-        (1-p1.x)*width,
-        p1.y*height
-      );
-
-      ctx.lineTo(
-        (1-p2.x)*width,
-        p2.y*height
-      );
-
-      ctx.stroke();
-
-    }
-
-    ctx.shadowBlur = 7;
-
-    for(const point of hand) {
-
-      ctx.beginPath();
-
-      ctx.arc(
-        (1-point.x)*width,
-        point.y*height,
-        2.4,
-        0,
-        Math.PI*2
-      );
-
-      ctx.fillStyle = "#ffffff";
-
-      ctx.fill();
-
-    }
-
-  }
-
-}
-
-
-// =====================================
-// CAMERA START
-// =====================================
-
-async function startCamera() {
-
-  cameraButton.textContent = "LOADING...";
-
-  try {
-
-    const vision = await FilesetResolver.forVisionTasks(
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
-    );
-
-    tracker = await HandLandmarker.createFromOptions(
-      vision,
-      {
-        baseOptions: {
-          modelAssetPath:
-            "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-          delegate: "CPU"
-        },
-
-        runningMode: "VIDEO",
-        numHands: 2
-      }
-    );
-
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: "user",
-        width: 480,
-        height: 360,
-        frameRate: {
-          ideal: 20,
-          max: 24
-        }
-      },
-      audio: false
-    });
-
-    video.srcObject = stream;
-
-    await video.play();
-
-    handCanvas.width = 480;
-    handCanvas.height = 360;
-
-    tracking = true;
-
-    lastDetectionTime = 0;
-
-    cameraButton.textContent = "⏹ STOP CAMERA";
-
-    statusText.textContent =
-      "Ready! Show your hands.";
-
-  }
-
-  catch(error) {
-
-    console.error(error);
-
-    cameraButton.textContent = "📷 TRY AGAIN";
-
-    statusText.textContent =
-      "Camera error. Check permission and HTTPS.";
-
-  }
-
-}
-
-
-function stopCamera() {
-
-  tracking = false;
-
-  if(stream) {
-
-    stream.getTracks().forEach(
-      track=>track.stop()
-    );
-
-    stream = null;
-
-  }
-
-  video.srcObject = null;
-
-  handCount = 0;
-
-  ctx.clearRect(
-    0,0,
-    handCanvas.width,
-    handCanvas.height
-  );
-
-  cameraButton.textContent =
-    "📷 START HAND CONTROL";
-
-  statusText.textContent = "Camera stopped";
-
-}
-
-
-cameraButton.addEventListener("click",()=>{
-
-  if(tracking) stopCamera();
-  else startCamera();
-
-});
-
-
-// =====================================
-// SMOOTH HAND CONTROLS
-// =====================================
-
-let targetRotationX = 0;
-let targetRotationY = 0;
-
-let currentRotationX = 0;
-let currentRotationY = 0;
-
-let targetZoom = 39;
-let currentZoom = 39;
-
-let previousCenter = null;
-
-let movementText = "Waiting for hands";
-
-
-// =====================================
-// PROCESS HANDS
-// =====================================
-
-function processHands(landmarks) {
-
-  handCount = landmarks ? landmarks.length : 0;
-
-  drawHands(landmarks);
-
-  if(!landmarks || !landmarks.length) {
-
-    movementText = "Hands not visible";
-
-    previousCenter = null;
-
-    return;
-
-  }
-
-  let centerX = 0;
-  let centerY = 0;
-  let pinchTotal = 0;
-
-  const centers = [];
-
-  for(const hand of landmarks) {
-
-    const palm = hand[9];
-
-    centerX += palm.x;
-    centerY += palm.y;
-
-    const pinchDistance = Math.hypot(
-      hand[4].x-hand[8].x,
-      hand[4].y-hand[8].y
-    );
-
-    pinchTotal += pinchDistance;
-
-    centers.push({
-      x: palm.x,
-      y: palm.y
-    });
-
-  }
-
-  const count = landmarks.length;
-
-  centerX /= count;
-  centerY /= count;
-
-  const averagePinch = pinchTotal/count;
-
-
-  // Rotate from hand position
-
-  targetRotationY = (0.5-centerX)*2.5;
-
-  targetRotationX = (centerY-0.5)*1.8;
-
-
-  // Zoom from pinch and hand distance
-
-  if(count===2) {
-
-    const distance = Math.hypot(
-      centers[0].x-centers[1].x,
-      centers[0].y-centers[1].y
-    );
-
-    targetZoom = THREE.MathUtils.clamp(
-      48-distance*24,
-      25,
-      55
-    );
-
-  } else {
-
-    targetZoom = THREE.MathUtils.clamp(
-      31+averagePinch*65,
-      27,
-      65
-    );
-
-  }
-
-
-  // Describe motion
-
-  const descriptions = [];
-
-  descriptions.push(
-    count===2
-      ? "Both hands detected"
-      : "One hand detected"
-  );
-
-  if(previousCenter) {
-
-    const dx = centerX-previousCenter.x;
-    const dy = centerY-previousCenter.y;
-
-    if(Math.abs(dx)>.008) {
-
-      descriptions.push(
-        dx>0 ? "Moving left" : "Moving right"
-      );
-
-    }
-
-    if(Math.abs(dy)>.008) {
-
-      descriptions.push(
-        dy>0 ? "Moving down" : "Moving up"
-      );
-
-    }
-
-  }
-
-  if(averagePinch<.08) {
-
-    descriptions.push("Pinching");
-
-  } else if(averagePinch>.18) {
-
-    descriptions.push("Opening fingers");
-
-  }
-
-  if(count===2) {
-
-    const d = Math.hypot(
-      centers[0].x-centers[1].x,
-      centers[0].y-centers[1].y
-    );
-
-    descriptions.push(
-      d>.45
-        ? "Hands spreading"
-        : "Two-hand control"
-    );
-
-  }
-
-  movementText = descriptions.join(" • ");
-
-  previousCenter = {
-    x: centerX,
-    y: centerY
-  };
-
-}
-
-
-// =====================================
-// CAMERA FRAME PROCESSING
-// =====================================
-
-function detectHands() {
-
-  const now = performance.now();
-
-  // Process camera at 20 FPS maximum
-
-  if(now-lastDetectionTime<50) return;
-
-  lastDetectionTime = now;
-
-  if(
-    !tracking ||
-    !tracker ||
-    video.readyState<2 ||
-    video.currentTime===lastVideoTime
-  ) return;
-
-  lastVideoTime = video.currentTime;
-
-  const result = tracker.detectForVideo(
-    video,
-    now
-  );
-
-  processHands(result.landmarks);
-
-}
-
-
-// =====================================
-// ANIMATION LOOP
-// =====================================
-
-const clock = new THREE.Clock();
 
 function animate() {
-
   requestAnimationFrame(animate);
 
-  const time = clock.getElapsedTime();
-
-  detectHands();
-
-
-  // Smooth rotation
-
-  currentRotationX +=
-    (targetRotationX-currentRotationX)*.055;
-
-  currentRotationY +=
-    (targetRotationY-currentRotationY)*.055;
-
-
-  world.rotation.x =
-    currentRotationX+Math.sin(time*.12)*.025;
-
-  world.rotation.y =
-    currentRotationY+time*.018;
-
-
-  // Smooth camera zoom
-
-  currentZoom +=
-    (targetZoom-currentZoom)*.045;
-
-  camera.position.z +=
-    (currentZoom-camera.position.z)*.045;
-
-
-  // Sun animation
-
-  sun.rotation.y += .002;
-
-  sun.rotation.x += .0005;
-
-  const pulse =
-    1+Math.sin(time*2)*.035;
-
-  sunGlow.scale.set(
-    12*pulse,
-    12*pulse,
-    1
-  );
-
-  innerGlow.scale.set(
-    6.5*pulse,
-    6.5*pulse,
-    1
-  );
-
-  corona.rotation.z += .0015;
-
-
-  // Planet movement
-
-  for(const item of planets) {
-
-    item.orbit.rotation.y +=
-      item.speed*.0015;
-
-    item.planet.rotation.y += .008;
-
+  if (rotating && objectMesh && !dragging) {
+    targetRotationY += 0.006;
   }
 
+  objectGroup.rotation.y +=
+    (targetRotationY - objectGroup.rotation.y) * 0.08;
 
-  // Stars
+  objectGroup.rotation.x +=
+    (targetRotationX - objectGroup.rotation.x) * 0.08;
 
-  stars.rotation.y += .00012;
+  objectGroup.position.y =
+    Math.sin(Date.now() * 0.001) * 0.12;
 
+  objectGroup.scale.setScalar(zoom);
 
-  // Status text
-
-  if(tracking) {
-
-    statusText.textContent = handCount
-      ? movementText
-      : "Show your hands to the camera";
-
-  }
-
-
-  renderer.render(scene,camera);
-
+  renderer.render(scene, camera);
 }
 
-animate();
+async function loadBackgroundRemover() {
+  setStatus("Loading background remover...");
 
-
-// =====================================
-// RESIZE
-// =====================================
-
-window.addEventListener("resize",()=>{
-
-  camera.aspect =
-    window.innerWidth/window.innerHeight;
-
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
+  const module = await import(
+    "https://esm.sh/@imgly/background-removal@1.7.0"
   );
 
-  renderer.setPixelRatio(1);
+  return module.default;
+}
 
+let removeBackgroundFunction;
+
+async function processPhoto(file) {
+  if (!file.type.startsWith("image/")) return;
+
+  try {
+    if (!removeBackgroundFunction) {
+      removeBackgroundFunction = await loadBackgroundRemover();
+    }
+
+    setStatus("Removing background from " + file.name + "...");
+
+    const resultBlob = await removeBackgroundFunction(file, {
+      model: "small",
+      output: {
+        format: "image/png",
+        quality: 0.8
+      },
+      progress: (key, current, total) => {
+        if (total > 0) {
+          const percent = Math.round(current / total * 100);
+          setStatus("Preparing AI model: " + percent + "%");
+        }
+      }
+    });
+
+    const resultURL = URL.createObjectURL(resultBlob);
+
+    photos.push({
+      name: file.name,
+      url: resultURL
+    });
+
+    if (photos.length === 1) {
+      showPhoto(0);
+    } else {
+      updateCounter();
+      setStatus("Picture ready: " + file.name);
+    }
+
+  } catch (error) {
+    console.error(error);
+    setStatus("Could not remove background. Try another picture.");
+  }
+}
+
+function showPhoto(index) {
+  if (!photos.length) return;
+
+  currentIndex = (index + photos.length) % photos.length;
+
+  const photo = photos[currentIndex];
+  const image = new Image();
+
+  setStatus("Loading " + photo.name + "...");
+
+  image.onload = () => {
+    const texture = new THREE.Texture(image);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+
+    if (objectMesh) {
+      objectGroup.remove(objectMesh);
+      objectMesh.geometry.dispose();
+      objectMesh.material.map?.dispose();
+      objectMesh.material.dispose();
+    }
+
+    const maxWidth = 3.5;
+    const maxHeight = 3.2;
+
+    const ratio = image.width / image.height;
+    let width = maxWidth;
+    let height = width / ratio;
+
+    if (height > maxHeight) {
+      height = maxHeight;
+      width = height * ratio;
+    }
+
+    const geometry = new THREE.PlaneGeometry(width, height);
+
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      side: THREE.DoubleSide,
+      depthWrite: false
+    });
+
+    objectMesh = new THREE.Mesh(geometry, material);
+    objectGroup.add(objectMesh);
+
+    targetRotationX = 0;
+    targetRotationY = 0;
+    objectGroup.rotation.set(0,0,0);
+
+    setStatus("Floating object ready ✦");
+    updateCounter();
+  };
+
+  image.onerror = () => {
+    setStatus("Could not display this picture.");
+  };
+
+  image.src = photo.url;
+}
+
+function updateCounter() {
+  counter.textContent =
+    "Picture " + (currentIndex + 1) + " of " + photos.length;
+}
+
+photoInput.addEventListener("change", async (event) => {
+  const files = Array.from(event.target.files || []);
+
+  if (!files.length || processing) return;
+
+  processing = true;
+
+  for (const file of files) {
+    await processPhoto(file);
+  }
+
+  processing = false;
+  photoInput.value = "";
 });
 
+document.getElementById("previous").onclick = () => {
+  if (photos.length) showPhoto(currentIndex - 1);
+};
+
+document.getElementById("next").onclick = () => {
+  if (photos.length) showPhoto(currentIndex + 1);
+};
+
+document.getElementById("spin").onclick = (event) => {
+  rotating = !rotating;
+  event.target.textContent =
+    rotating ? "Pause Rotation" : "Start Rotation";
+};
+
+// Touch and mouse rotation
+const canvas = () => renderer.domElement;
+
+function pointerDown(event) {
+  dragging = true;
+  lastX = event.clientX;
+  lastY = event.clientY;
+}
+
+function pointerMove(event) {
+  if (!dragging) return;
+
+  const dx = event.clientX - lastX;
+  const dy = event.clientY - lastY;
+
+  targetRotationY += dx * 0.012;
+  targetRotationX += dy * 0.008;
+
+  lastX = event.clientX;
+  lastY = event.clientY;
+}
+
+function pointerUp() {
+  dragging = false;
+}
+
+init();
+
+renderer.domElement.addEventListener("pointerdown", pointerDown);
+window.addEventListener("pointermove", pointerMove);
+window.addEventListener("pointerup", pointerUp);
+
+renderer.domElement.addEventListener("wheel", (event) => {
+  zoom = Math.max(0.5, Math.min(1.8, zoom - event.deltaY * 0.001));
+});
+
+let pinchDistance = 0;
+
+renderer.domElement.addEventListener("touchstart", (event) => {
+  if (event.touches.length === 2) {
+    pinchDistance = Math.hypot(
+      event.touches[0].clientX - event.touches[1].clientX,
+      event.touches[0].clientY - event.touches[1].clientY
+    );
+  }
+}, { passive: true });
+
+renderer.domElement.addEventListener("touchmove", (event) => {
+  if (event.touches.length === 2) {
+    const distance = Math.hypot(
+      event.touches[0].clientX - event.touches[1].clientX,
+      event.touches[0].clientY - event.touches[1].clientY
+    );
+
+    if (pinchDistance) {
+      zoom = Math.max(
+        0.5,
+        Math.min(1.8, zoom + (distance - pinchDistance) * 0.003)
+      );
+    }
+
+    pinchDistance = distance;
+  }
+}, { passive: true });
+
+renderer.domElement.addEventListener("touchend", () => {
+  pinchDistance = 0;
+});
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 </script>
 
 </body>
